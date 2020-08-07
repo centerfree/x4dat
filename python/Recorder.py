@@ -4,19 +4,20 @@ from monitors import Buffer
 from utils.utils import select_directory, unique_file_name
 from annotation.tools import write_info
 from algorithms import io
-from device import x4m300 as device
+from device.Xethru import Xethru as Dev
 from time import sleep
 from pathlib import Path
 import os
 
 
 class Recorder:
-    __version__ = 2
+    __version__ = 3
     __buffer__ = None
     __connection_status = False
     __dev__ = ""
     __ext__ = "uwb"
     __info_ext__ = "info"
+    __dev_name = ""
     __primary_light = "#fff7ff"
     __primary_dark = "#a094b7"
     __primary_medium = "#d1c4e9"
@@ -66,7 +67,7 @@ class Recorder:
         self.__event_label.grid(row=0, column=0, **label_padding)
         self.__event = tkinter.Entry(
             **common, width=18, bg=self.__primary_light)
-        self.__event.grid(row=1, column=0,  **entry_padding)
+        self.__event.grid(row=1, column=0, **entry_padding)
 
         self.__duration_label = tkinter.Label(
             **common, width=16, bg=self.__primary_dark, text="Record Length\n(Milliseconds)")
@@ -249,10 +250,10 @@ class Recorder:
         self.__window.update()
 
     def connect_callback(self):
-        self.__xep__ = None
-        self.__dev__ = self.__device.get()
+        self.__dev_name = self.__device.get()
+        self.__dev__ = Dev()
 
-        if not len(self.__dev__):
+        if not len(self.__dev_name):
             messagebox.showwarning("Caution!!!",
                                    "Please enter a valid Serial device name.\n \"COM 12\", \"/dev/ttyACM0/\" etc.")
 
@@ -260,25 +261,25 @@ class Recorder:
         self.__device_window.configure(bg=self.__YELLOW)
         self.__device_window.delete("1.0", tkinter.END)
         self.__device_window.insert(
-            tkinter.INSERT, "connecting to device %s..." % self.__dev__)
+            tkinter.INSERT, "connecting to device %s..." % self.__dev_name)
         self.__connect.configure(relief="sunken")
         self.__connect.configure(state="disabled")
         self.__window.update()
 
-        self.__connection_status = device.connect(self.__dev__)
+        self.__connection_status = self.__dev__.connect(self.__dev_name)
 
         if not self.__connection_status:
             self.__device_window.configure(state="normal")
             self.__device_window.configure(bg=self.__RED)
             self.__device_window.delete("1.0", tkinter.END)
             self.__device_window.insert(
-                tkinter.INSERT, "Failed to connect to device \"%s\"" % self.__dev__)
+                tkinter.INSERT, "Failed to connect to device \"%s\"" % self.__dev_name)
             self.__device_window.configure(state="disabled")
             self.__connect.configure(relief="raised")
             self.__connect.configure(state="normal")
             self.__window.update()
             messagebox.showerror(
-                "Connection Error!!!", "Failed to connect to device \"%s\"" % self.__dev__)
+                "Connection Error!!!", "Failed to connect to device \"%s\"" % self.__dev_name)
             return
 
         self.__connect.configure(relief="raised")
@@ -287,7 +288,7 @@ class Recorder:
         self.__device_window.configure(bg=self.__GREEN)
         self.__device_window.delete("1.0", tkinter.END)
         self.__device_window.insert(
-            tkinter.INSERT, "Connected to device \"%s\"" % self.__dev__)
+            tkinter.INSERT, "Connected to device \"%s\"" % self.__dev_name)
         self.__device_window.configure(state="disabled")
 
     def calculate_buffer_size(self, ms: str):
@@ -295,12 +296,10 @@ class Recorder:
 
     def record(self, info: dict):
         self.__buffer__ = Buffer.Buffer(self.__buffer_size)
-        device.simple_xep_read(self.__dev__,
-                               baseband=False,
-                               fps=self.__fps,
-                               read_frame_callback=lambda arg: self.__buffer__.step(
-                                   arg),
-                               max_frames=self.__buffer_size)
+        self.__dev__.read(self.__dev_name,
+                          fps=self.__fps,
+                          new_frame_callback=lambda arg: self.__buffer__.step(arg),
+                          max_frames=self.__buffer_size)
         self.save(self.__buffer__.dump(), info)
 
     def save(self, frame, info: dict):
@@ -309,7 +308,8 @@ class Recorder:
         annotation_path = os.path.join(self.__sink_path, file_path + "." + self.__info_ext__)
         io.write_uwb(raw_data_path, frame)
         write_info(annotation_path, info)
-        print("Raw data and annotations are saved succesfully\nin %s\nand %s respectively\n" % (raw_data_path, annotation_path))
+        print("Raw data and annotations are saved succesfully\nin %s\nand %s respectively\n"
+              % (raw_data_path, annotation_path))
 
     def countdown_animation(self):
         for i in range(self.__countdown_steps):

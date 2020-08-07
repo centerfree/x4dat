@@ -11,7 +11,7 @@
 
 import argparse
 from server import server
-from device import x4m300 as device
+from device.Xethru import Xethru as Dev
 
 
 def main():
@@ -38,8 +38,14 @@ def main():
     if verbose:
         print("Initializing data streaming from %s" % args.device)
 
+    dev = Dev()
+    connected = dev.connect(device_name=args.device)
+
+    if not connected:
+        raise RuntimeError("Count not connect to " + args.device)
+
     try:
-        device.simple_xep_read(device_name=args.device, baseband=False, fps=fps, read_frame_callback=fun, verbose=0)
+        dev.read(device_name=args.device, fps=fps, new_frame_callback=fun, max_frames=2**16 - 1)
     finally:
         socket.terminate()
 
