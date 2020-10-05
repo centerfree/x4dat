@@ -1,3 +1,0 @@
-facing tv, 90 deg to floor
-fan fast
-human distnace > 4 meters

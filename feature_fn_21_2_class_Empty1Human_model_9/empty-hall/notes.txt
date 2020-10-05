@@ -1,2 +1,0 @@
-Sensor facing upward
-fan slow

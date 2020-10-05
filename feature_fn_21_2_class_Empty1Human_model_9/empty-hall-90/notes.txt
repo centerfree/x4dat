@@ -1,2 +1,0 @@
-Sensor 90 degree to floor, facing kitchen
-fan fast
