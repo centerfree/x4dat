@@ -1,5 +1,0 @@
-sensor facing human
-human sitting 2-3 meter away from sensor
-fan on medium speed
-window open
-
