@@ -1,0 +1,4 @@
+timestamp,event_type,person_id,distance,location,room_id,comments
+0,LYING,2,3M,0,GreensRoom3,FAN_OFF|LYING_LEGS_TOWARDS_SENSOR
+30,LYING,2,3M,0,GreensRoom3,FAN_OFF|LYING_LEGS_TOWARDS_SENSOR
+

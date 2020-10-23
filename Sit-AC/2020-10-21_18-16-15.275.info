@@ -1,0 +1,4 @@
+timestamp,event_type,person_id,distance,location,room_id,comments
+0,SIT,2,4M,0,GreensRoom8,FAN_OFF|CHIMNEY_LOW|FRIDGE
+30,SIT,2,4M,0,GreensRoom8,FAN_OFF|CHIMNEY_LOW|FRIDGE
+

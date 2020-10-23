@@ -1,0 +1,4 @@
+timestamp,event_type,person_id,distance,location,room_id,comments
+0,SIT,2,2M,0,GreensRoom4,FAN_OFF
+30,SIT,2,2M,0,GreensRoom4,FAN_OFF
+
